@@ -11,7 +11,11 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
         <Lithium:connection-pooling-profile initialisationPolicy="INITIALISE_ONE" exhaustedAction="WHEN_EXHAUSTED_GROW"/>
     </Lithium:config>
     <flow name="lithium-connector-userFlow1" doc:name="lithium-connector-userFlow1">
-        <http:inbound-endpoint exchange-pattern="request-response" host="localhost" port="8081" doc:name="HTTP"/>
+        <http:inbound-endpoint exchange-pattern="request-response" host="localhost" port="8081" doc:name="HTTP" path="1"/>
         <Lithium:get-distance config-ref="Lithium" destinations="San Francisco" origins="San Ramon" sensor="false" doc:name="Lithium"/>
+    </flow>
+    <flow name="lithium-connector-clientFlow1" doc:name="lithium-connector-clientFlow1">
+        <http:inbound-endpoint exchange-pattern="request-response" host="localhost" port="8081" doc:name="HTTP" path="2"/>
+        <Lithium:post-blog-message config-ref="Lithium" doc:name="Lithium" messageBody="This a test and from the Mule Integration." messageSubject="Hello Integrations" labels="tech,abc,test"  />
     </flow>
 </mule>
