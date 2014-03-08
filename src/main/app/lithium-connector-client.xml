@@ -18,15 +18,11 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
         <Lithium:get-blog-latest config-ref="Lithium" doc:name="Lithium"/>
     </flow>
     <flow name="lithium-connector-clientFlow3" doc:name="lithium-connector-clientFlow3">
-        <http:inbound-endpoint exchange-pattern="request-response" host="localhost" port="8081" path="3" doc:name="HTTP"/>
+        <http:inbound-endpoint exchange-pattern="request-response" host="localhost" port="8081" path="2" doc:name="HTTP"/>
         <Lithium:get-kudos-leaderboard config-ref="Lithium" doc:name="Lithium"/>
     </flow>
-    <flow name="lithium-connector-clientFlow4" doc:name="lithium-connector-clientFlow4">
-        <http:inbound-endpoint exchange-pattern="request-response" host="localhost" port="8081" path="4" doc:name="HTTP"/>
-        <Lithium:get-recent-topics config-ref="Lithium" doc:name="Lithium"/>
-    </flow>
     <flow name="lithium-connector-clientFlow2" doc:name="lithium-connector-clientFlow2">
-        <http:inbound-endpoint exchange-pattern="request-response" host="localhost" port="8081" path="2" doc:name="HTTP"/>
-        <Lithium:post-blog-message config-ref="Lithium" doc:name="Lithium"/>
+        <http:inbound-endpoint exchange-pattern="request-response" host="localhost" port="8081" path="3" doc:name="HTTP"/>
+        <Lithium:get-recent-topics config-ref="Lithium" page="2" pageSize="5" doc:name="Lithium"/>
     </flow>
 </mule>
