@@ -1,28 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:Lithium="http://www.mulesoft.org/schema/mule/Lithium"
-	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking"
+	xmlns:Lithium="http://www.mulesoft.org/schema/mule/Lithium" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
 	xmlns:spring="http://www.springframework.org/schema/beans" version="EE-3.5.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/Lithium http://www.mulesoft.org/schema/mule/Lithium/1.0.0/mule-Lithium.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
-http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
-    <Lithium:config name="Lithium" username="admin" password="arfarf" doc:name="Lithium">
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+    <Lithium:config name="Lithium" lithiumPassword="arfarf" lithiumUserName="admin" doc:name="Lithium">
         <Lithium:connection-pooling-profile initialisationPolicy="INITIALISE_ONE" exhaustedAction="WHEN_EXHAUSTED_GROW"/>
     </Lithium:config>
-    <flow name="lithium-connector-clientFlow1" doc:name="lithium-connector-clientFlow1">
-        <http:inbound-endpoint exchange-pattern="request-response" host="localhost" port="8081" doc:name="HTTP" path="1"/>
-        <Lithium:get-blog-latest config-ref="Lithium" doc:name="Lithium"/>
-    </flow>
-    <flow name="lithium-connector-clientFlow3" doc:name="lithium-connector-clientFlow3">
-        <http:inbound-endpoint exchange-pattern="request-response" host="localhost" port="8081" path="2" doc:name="HTTP"/>
-        <Lithium:get-kudos-leaderboard config-ref="Lithium" doc:name="Lithium"/>
-    </flow>
-    <flow name="lithium-connector-clientFlow2" doc:name="lithium-connector-clientFlow2">
-        <http:inbound-endpoint exchange-pattern="request-response" host="localhost" port="8081" path="3" doc:name="HTTP"/>
-        <Lithium:get-recent-topics config-ref="Lithium" page="2" pageSize="5" doc:name="Lithium"/>
+    <flow name="lithium-connector-main" doc:name="lithium-connector-main">
+        <http:inbound-endpoint exchange-pattern="request-response" host="localhost" port="8081" path="lithium" doc:name="HTTP"/>
+        <Lithium:post-blog-message config-ref="Lithium" doc:name="Lithium"/>
+        <processor-chain doc:name="Processor Chain">
+            <Lithium:get-recent-topics config-ref="Lithium" doc:name="Lithium"/>
+            <Lithium:get-topic-message config-ref="Lithium" doc:name="Lithium"/>
+            <all doc:name="All">
+                <Lithium:get-author config-ref="Lithium" doc:name="Lithium"/>
+                <Lithium:get-author-avatar config-ref="Lithium" doc:name="Lithium"/>
+            </all>
+        </processor-chain>
+        <http:message-to-http-response-transformer doc:name="Message to HTTP Response"/>
     </flow>
 </mule>
