@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:jdbc-ee="http://www.mulesoft.org/schema/mule/ee/jdbc" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+<mule xmlns:ajax="http://www.mulesoft.org/schema/mule/ajax" xmlns:vm="http://www.mulesoft.org/schema/mule/vm" xmlns:jdbc-ee="http://www.mulesoft.org/schema/mule/ee/jdbc" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
 	xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking"
 	xmlns:Lithium="http://www.mulesoft.org/schema/mule/Lithium" xmlns:http="http://www.mulesoft.org/schema/mule/http"
 	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
@@ -13,7 +13,9 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
 http://www.mulesoft.org/schema/mule/ee/jdbc http://www.mulesoft.org/schema/mule/ee/jdbc/current/mule-jdbc-ee.xsd
-http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd">
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+http://www.mulesoft.org/schema/mule/ajax http://www.mulesoft.org/schema/mule/ajax/current/mule-ajax.xsd">
     <Lithium:config name="Lithium" lithiumPassword="arfarf" lithiumUserName="admin" doc:name="Lithium">
         <Lithium:connection-pooling-profile initialisationPolicy="INITIALISE_ONE" exhaustedAction="WHEN_EXHAUSTED_GROW"/>
     </Lithium:config>
@@ -21,9 +23,8 @@ http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/jso
     <byte-array-to-object-transformer name="Byte_Array_to_Object" doc:name="Byte Array to Object"/>
     <byte-array-to-string-transformer name="Byte_Array_to_String" doc:name="Byte Array to String"/>
     <http:body-to-parameter-map-transformer name="Body_to_Parameter_Map" doc:name="Body to Parameter Map"/>
-    <http:body-to-parameter-map-transformer name="Body_to_Parameter_Map1" doc:name="Body to Parameter Map"/>
     <flow name="lithium-connector-main" doc:name="lithium-connector-main">
-        <http:inbound-endpoint exchange-pattern="request-response"  doc:name="HTTP"      responseTransformer-refs="Byte_Array_to_String" ref="HTTP" transformer-refs="Body_to_Parameter_Map"/>
+        <http:inbound-endpoint exchange-pattern="request-response"  doc:name="HTTP"  ref="HTTP" transformer-refs="Body_to_Parameter_Map" responseTransformer-refs="Byte_Array_to_String"/>
         <custom-transformer class="com.lithium.integrations.HttpVariablesTx" doc:name="Tranform Variables"/>
         <Lithium:post-blog-message config-ref="Lithium" doc:name="Post Blog" boardIdOrBlogName="#[message.payload.boardname]" labels="#[message.payload.labels]" messageBody="#[message.payload.messageBody]" messageIsDraft="#[message.payload.messageIsDraft]" messageSubject="#[message.payload.messageSubject]" messageTeaser="#[message.payload.messageTeaser]" tagAdd="#[message.payload.tagAdd]"/>
         <processor-chain doc:name="Processor Chain">
@@ -41,5 +42,6 @@ http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/jso
                 </processor-chain>
             </all>
         </processor-chain>
+        <splitter expression="#[message.payload]" doc:name="Splitter"/>
     </flow>
 </mule>
