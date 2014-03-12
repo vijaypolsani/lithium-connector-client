@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+<mule xmlns:jdbc-ee="http://www.mulesoft.org/schema/mule/ee/jdbc" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
 	xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking"
 	xmlns:Lithium="http://www.mulesoft.org/schema/mule/Lithium" xmlns:http="http://www.mulesoft.org/schema/mule/http"
 	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
@@ -11,21 +11,35 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 http://www.mulesoft.org/schema/mule/Lithium http://www.mulesoft.org/schema/mule/Lithium/1.0.0/mule-Lithium.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
-http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/ee/jdbc http://www.mulesoft.org/schema/mule/ee/jdbc/current/mule-jdbc-ee.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd">
     <Lithium:config name="Lithium" lithiumPassword="arfarf" lithiumUserName="admin" doc:name="Lithium">
         <Lithium:connection-pooling-profile initialisationPolicy="INITIALISE_ONE" exhaustedAction="WHEN_EXHAUSTED_GROW"/>
     </Lithium:config>
+    <http:endpoint exchange-pattern="request-response" host="localhost" port="8081" path="lithium" method="POST" name="HTTP" doc:name="HTTP"/>
+    <byte-array-to-object-transformer name="Byte_Array_to_Object" doc:name="Byte Array to Object"/>
+    <byte-array-to-string-transformer name="Byte_Array_to_String" doc:name="Byte Array to String"/>
+    <http:body-to-parameter-map-transformer name="Body_to_Parameter_Map" doc:name="Body to Parameter Map"/>
+    <http:body-to-parameter-map-transformer name="Body_to_Parameter_Map1" doc:name="Body to Parameter Map"/>
     <flow name="lithium-connector-main" doc:name="lithium-connector-main">
-        <http:inbound-endpoint exchange-pattern="request-response" host="localhost" port="8081" path="lithium" doc:name="HTTP"/>
-        <Lithium:post-blog-message config-ref="Lithium" doc:name="Lithium"/>
+        <http:inbound-endpoint exchange-pattern="request-response"  doc:name="HTTP"      responseTransformer-refs="Byte_Array_to_String" ref="HTTP" transformer-refs="Body_to_Parameter_Map"/>
+        <custom-transformer class="com.lithium.integrations.HttpVariablesTx" doc:name="Tranform Variables"/>
+        <Lithium:post-blog-message config-ref="Lithium" doc:name="Post Blog" boardIdOrBlogName="#[message.payload.boardname]" labels="#[message.payload.labels]" messageBody="#[message.payload.messageBody]" messageIsDraft="#[message.payload.messageIsDraft]" messageSubject="#[message.payload.messageSubject]" messageTeaser="#[message.payload.messageTeaser]" tagAdd="#[message.payload.tagAdd]"/>
         <processor-chain doc:name="Processor Chain">
-            <Lithium:get-recent-topics config-ref="Lithium" doc:name="Lithium"/>
-            <Lithium:get-topic-message config-ref="Lithium" doc:name="Lithium"/>
+            <Lithium:get-recent-topics config-ref="Lithium" doc:name="Get Recent Topics List" boardIdOrBlogName="#[app.registry.boardname]"/>
+            <custom-transformer class="com.lithium.integrations.XmlToVaribalesTx" doc:name="Java"/>
+            <Lithium:get-topic-message config-ref="Lithium" doc:name="Get Topic Message"/>
             <all doc:name="All">
-                <Lithium:get-author config-ref="Lithium" doc:name="Lithium"/>
-                <Lithium:get-author-avatar config-ref="Lithium" doc:name="Lithium"/>
+                <processor-chain>
+                    <Lithium:get-author config-ref="Lithium" doc:name="Get Author"/>
+                    <object-to-string-transformer doc:name="Object to String"/>
+                </processor-chain>
+                <processor-chain>
+                    <Lithium:get-author-avatar config-ref="Lithium" doc:name="Get Avatar"/>
+                    <object-to-string-transformer doc:name="Object to String"/>
+                </processor-chain>
             </all>
         </processor-chain>
-        <http:message-to-http-response-transformer doc:name="Message to HTTP Response"/>
     </flow>
 </mule>
