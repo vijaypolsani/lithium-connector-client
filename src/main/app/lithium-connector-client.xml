@@ -16,7 +16,7 @@ http://www.mulesoft.org/schema/mule/ee/jdbc http://www.mulesoft.org/schema/mule/
 http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
 http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
 http://www.mulesoft.org/schema/mule/ajax http://www.mulesoft.org/schema/mule/ajax/current/mule-ajax.xsd">
-    <Lithium:config name="Lithium" lithiumPassword="arfarf" lithiumUserName="admin" doc:name="Lithium">
+    <Lithium:config name="Lithium" lithiumPassword="" lithiumUserName="" doc:name="Lithium">
         <Lithium:connection-pooling-profile initialisationPolicy="INITIALISE_ONE" exhaustedAction="WHEN_EXHAUSTED_GROW"/>
     </Lithium:config>
     <http:endpoint exchange-pattern="request-response" host="localhost" port="8081" path="lithium" method="POST" name="HTTP" doc:name="HTTP"/>
